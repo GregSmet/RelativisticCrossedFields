@@ -1,0 +1,223 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T2A]{fontenc}
+\usepackage[russian]{babel}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{geometry}
+\usepackage{float}
+\geometry{margin=2cm}
+\usepackage{indentfirst}
+\usepackage{caption}
+
+\begin{document}
+
+\begin{titlepage}
+\begin{center}
+
+\textbf{\Large МОДЕЛИРОВАНИЕ ДВИЖЕНИЯ РЕЛЯТИВИСТСКОЙ ЗАРЯЖЕННОЙ ЧАСТИЦЫ\\
+В СКРЕЩЁННЫХ ПОЛЯХ}\\[6em]
+
+Сметанин Григорий\\[1em]
+
+\end{center}
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+\section*{Введение}
+\addcontentsline{toc}{section}{Введение}
+
+Цель работы — смоделировать движение заряженной частицы в скрещённых электрическом и магнитном полях с учётом релятивистской динамики, рассмотреть три режима в зависимости от соотношения между напряжённостью электрического и магнитного полей и сравнить релятивистское движение с классическим нерелятивистским дрейфом.
+
+В работе численно исследуются три случая:
+\begin{enumerate}
+    \item Электрическое поле меньше магнитного: $E < cB$;
+    \item Электрическое и магнитное поля равны по модулю: $E = cB$;
+    \item Электрическое поле больше магнитного: $E > cB$.
+\end{enumerate}
+
+Для численного решения используется \textbf{метод Рунге–Кутты четвёртого порядка точности (RK4)}. Этот метод обеспечивает точное интегрирование систем обыкновенных дифференциальных уравнений.
+
+\medskip
+
+Метод Рунге–Кутты основан на поэтапном вычислении промежуточных значений производной функции и усреднении их с определёнными весами. Для уравнения
+\[
+\frac{dy}{dt} = f(y, t), \quad y(t_0)=y_0,
+\]
+шаг интегрирования $\Delta t$ выполняется по формулам:
+\begin{equation}
+\begin{aligned}
+k_1 &= f(y_n, t_n),\\
+k_2 &= f\left(y_n + \frac{\Delta t}{2}k_1,\, t_n + \frac{\Delta t}{2}\right),\\
+k_3 &= f\left(y_n + \frac{\Delta t}{2}k_2,\, t_n + \frac{\Delta t}{2}\right),\\
+k_4 &= f\left(y_n + \Delta t\,k_3,\, t_n + \Delta t\right),\\[0.5em]
+y_{n+1} &= y_n + \frac{\Delta t}{6}\left(k_1 + 2k_2 + 2k_3 + k_4\right).
+\end{aligned}
+\label{eq:rk4}
+\end{equation}
+
+Усреднение в формуле (\ref{eq:rk4}) уменьшает ошибку шага до $O(\Delta t^5)$, а полная погрешность решения имеет порядок $O(\Delta t^4)$.
+
+В задаче о движении заряженной частицы этот метод применяется к системе уравнений:
+\[
+\frac{d}{dt}
+\begin{pmatrix}
+\mathbf{r}\\[0.3em]
+\mathbf{v}
+\end{pmatrix}
+=
+\begin{pmatrix}
+\mathbf{v}\\[0.3em]
+\dfrac{q}{m\gamma}\left(\mathbf{E} + \mathbf{v}\times\mathbf{B} - \dfrac{(\mathbf{v}\cdot\mathbf{E})\mathbf{v}}{c^2}\right)
+\end{pmatrix}.
+\]
+
+
+\newpage
+\section{Теоретическая часть}
+
+\subsection{Основные уравнения движения}
+
+Рассмотрим заряженную частицу с зарядом $q$ и массой $m$, движущуюся со скоростью $\mathbf{v}$ в электрическом и магнитном полях $\mathbf{E}$ и $\mathbf{B}$. Общий закон Лоренца имеет вид:
+\begin{equation}
+    \frac{d\mathbf{p}}{dt} = q \left( \mathbf{E} + \mathbf{v} \times \mathbf{B} \right),
+    \label{eq:lorentz}
+\end{equation}
+где $\mathbf{p}$ — импульс частицы. В релятивистской форме
+\begin{equation}
+    \mathbf{p} = \gamma m \mathbf{v}, \qquad
+    \gamma = \frac{1}{\sqrt{1 - \frac{v^2}{c^2}}}.
+\end{equation}
+
+Ускорение $\frac{d\mathbf{v}}{dt}$ выражается как:
+\begin{equation}
+    \frac{d\mathbf{v}}{dt} = \frac{q}{m\gamma}\left(
+    \mathbf{E} + \mathbf{v} \times \mathbf{B} - \frac{\mathbf{v}(\mathbf{v} \cdot \mathbf{E})}{c^2}
+    \right).
+    \label{eq:accel}
+\end{equation}
+
+
+Для численного моделирования уравнения (\ref{eq:lorentz}) и (\ref{eq:accel}) представляются в виде системы шести обыкновенных дифференциальных уравнений:
+\begin{equation}
+    \begin{cases}
+        \dfrac{d\mathbf{r}}{dt} = \mathbf{v},\\[0.5em]
+        \dfrac{d\mathbf{v}}{dt} = \dfrac{q}{m\gamma}\left(\mathbf{E} + \mathbf{v}\times\mathbf{B} - \dfrac{(\mathbf{v}\cdot\mathbf{E})\mathbf{v}}{c^2}\right).
+    \end{cases}
+\end{equation}
+
+\subsection{Характер движения в скрещённых полях}
+
+Наши электрическое и магнитное поля взаимно перпендикулярны:
+\[
+\mathbf{E} = (E, 0, 0), \qquad \mathbf{B} = (0, 0, B).
+\]
+
+В зависимости от отношения между $E$ и $cB$ рассмотрим три режима:
+
+\begin{itemize}
+    \item \textbf{Магнитодоминированный режим} ($E < cB$).
+    \item \textbf{Критический режим} ($E = cB$). 
+    \item \textbf{Электродоминированный режим} ($E > cB$).
+\end{itemize}
+
+\subsection{Преобразование полей и физический смысл трёх режимов}
+
+Электрическое и магнитное поля зависят от выбора инерциальной системы отсчёта. При переходе в систему, движущуюся со скоростью $\mathbf{u}$ относительно лабораторной, они преобразуются по формулам Лоренца:
+\[
+\mathbf{E}' = \gamma_u(\mathbf{E} + \mathbf{u}\times\mathbf{B}) 
+- \frac{\gamma_u^2}{\gamma_u+1}\frac{\mathbf{u}(\mathbf{u}\cdot\mathbf{E})}{c^2},
+\qquad
+\gamma_u = \frac{1}{\sqrt{1 - \frac{u^2}{c^2}}}.
+\]
+
+Для полей $\mathbf{E}\perp\mathbf{B}$ можно выбрать скорость
+\[
+\mathbf{u} = \frac{\mathbf{E}\times\mathbf{B}}{B^2},
+\]
+при которой $\mathbf{E}'=0$. Такое преобразование возможно только при $E<cB$, так как тогда $u=E/B<c$. В этой системе наблюдается лишь магнитное поле, и частица вращается вокруг линий $\mathbf{B}$, что соответствует устойчивому дрейфу.
+
+При $E=cB$ требуемая скорость компенсации равна $c$, а при $E>cB$ она превышает скорость света, что делает устранение электрического поля невозможным. Следовательно, при $E\ge cB$ движение становится нестационарным и сопровождается непрерывным ростом энергии частицы.
+
+
+
+\section{Численное моделирование}
+
+Для исследования движения была выполнена численная интеграция системы (\ref{eq:accel}). Расчёты выполнены в языке программирования Python при помощи библиотек \texttt{NumPy} и \texttt{Matplotlib}. В качестве тестовой частицы рассматривался электрон:
+\[
+q = -1.602\times10^{-19}\ \text{Кл}, \qquad
+m = 9.109\times10^{-31}\ \text{кг}.
+\]
+
+а начальные условия:
+\[
+\mathbf{r}_0 = (0,0,0), \qquad \mathbf{v}_0 = (10^6, 0, 0)\ \text{м/с}.
+\]
+
+На каждом шаге времени вычислялись координаты $\mathbf{r}(t)$, скорость $\mathbf{v}(t)$ и фактор Лоренца
+\[
+\gamma(t) = \frac{1}{\sqrt{1-\frac{v^2(t)}{c^2}}}.
+\]
+Графики траекторий строились в проекции $xy$, а также строилась зависимость $\gamma(t)$, отражающая изменение энергии частицы.
+
+\subsection{Результаты моделирования}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.75\textwidth]{1.png}
+\caption{Траектория частицы при $E = 10^5, B = 0.5$.}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.75\textwidth]{11.png}
+\caption{Зависимость фактора Лоренца $\gamma(t)$ при $E = 10^5, B = 0.5$.}
+\end{figure}
+
+\paragraph{Случай $E < cB$.}
+\newpage
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.75\textwidth]{2.png}
+\caption{Траектория частицы при $E = cB, B = 0.05$.}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.75\textwidth]{22.png}
+\caption{Изменение фактора Лоренца $\gamma(t)$ при $E = cB, B = 0.05$.}
+\end{figure}
+
+\paragraph{Случай $E = cB$.}
+При равенстве модулей полей частица испытывает ускорение вдоль направления $\mathbf{E}\times\mathbf{B}$. На графике траектории видно постепенное выпрямление движения и рост $\gamma(t)$.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.75\textwidth]{3.png}
+\caption{Траектория частицы при $E = 1.2cB, B = 0.05$.}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.75\textwidth]{33.png}
+\caption{Изменение фактора Лоренца $\gamma(t)$ при $E = 1.2cB, B = 0.05$.}
+\end{figure}
+
+\paragraph{Случай $E > cB$.}
+Электрическое поле доминирует, и частица разгоняется почти прямо вдоль $\mathbf{E}$, лишь слегка отклоняясь под действием $\mathbf{B}$. В этом режиме $\gamma(t)$ растёт быстрее.
+
+
+\newpage
+\section{Сравнение с нерелятивистским дрейфом}
+
+Для контроля корректности модели был рассмотрен предельный нерелятивистский случай ($v \ll c$). При тех же значениях $E$ и $B$ траектория частицы имеет форму спирали с постоянным дрейфом, который хорошо совпадает с аналитическим выражением
+\[
+\mathbf{v}_d = \frac{\mathbf{E}\times\mathbf{B}}{B^2}.
+\]
+Таким образом, релятивистская модель корректно воспроизводит классическую динамику при малых скоростях и даёт ожидаемое отклонение при приближении скорости к световой.
+
+
+\end{document}
